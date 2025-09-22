@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { getCurrentTournaments, formatTournament } from '@/services/lichessApi';
+import { useState, useEffect } from "react";
+import { getCurrentTournaments, formatTournament } from "@/services/lichessApi";
 
 export default function TournamentsPage() {
   const [tournaments, setTournaments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState("all");
 
   useEffect(() => {
     const fetchTournaments = async () => {
@@ -15,17 +15,37 @@ export default function TournamentsPage() {
       setError(null);
 
       const result = await getCurrentTournaments();
-      
+
       if (result.error) {
         setError(result.error);
       } else {
-        // Format and filter tournaments
-        const formattedTournaments = result.data.created
-          ?.map(formatTournament)
-          .filter(tournament => tournament.status !== 'finished') || [];
-        setTournaments(formattedTournaments);
+        try {
+          // Format and filter tournaments with error handling
+          const formattedTournaments =
+            result.data.created
+              ?.map((tournament) => {
+                try {
+                  return formatTournament(tournament);
+                } catch (err) {
+                  console.error(
+                    "Error formatting tournament:",
+                    err.message,
+                    "Tournament ID:",
+                    tournament?.id
+                  );
+                  return null;
+                }
+              })
+              .filter(
+                (tournament) => tournament && tournament.status !== "finished"
+              ) || [];
+          setTournaments(formattedTournaments);
+        } catch (err) {
+          console.error("Error processing tournaments:", err);
+          setError("Failed to process tournament data");
+        }
       }
-      
+
       setLoading(false);
     };
 
@@ -34,46 +54,64 @@ export default function TournamentsPage() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'created': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'started': return 'bg-green-100 text-green-800 border-green-200';
-      case 'finished': return 'bg-gray-100 text-gray-800 border-gray-200';
-      default: return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case "created":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "started":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "finished":
+        return "bg-gray-100 text-gray-800 border-gray-200";
+      default:
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
     }
   };
 
   const getVariantColor = (variant) => {
     switch (variant?.key) {
-      case 'standard': return 'text-green-600';
-      case 'chess960': return 'text-purple-600';
-      case 'kingOfTheHill': return 'text-orange-600';
-      case 'threeCheck': return 'text-red-600';
-      case 'antichess': return 'text-pink-600';
-      case 'atomic': return 'text-yellow-600';
-      case 'horde': return 'text-indigo-600';
-      case 'racingKings': return 'text-blue-600';
-      case 'crazyhouse': return 'text-teal-600';
-      default: return 'text-gray-600';
+      case "standard":
+        return "text-green-600";
+      case "chess960":
+        return "text-purple-600";
+      case "kingOfTheHill":
+        return "text-orange-600";
+      case "threeCheck":
+        return "text-red-600";
+      case "antichess":
+        return "text-pink-600";
+      case "atomic":
+        return "text-yellow-600";
+      case "horde":
+        return "text-indigo-600";
+      case "racingKings":
+        return "text-blue-600";
+      case "crazyhouse":
+        return "text-teal-600";
+      default:
+        return "text-gray-600";
     }
   };
 
   const formatTimeControl = (minutes) => {
-    if (minutes < 3) return 'Bullet';
-    if (minutes <= 8) return 'Blitz';
-    if (minutes <= 25) return 'Rapid';
-    return 'Classical';
+    const mins = Number(minutes) || 0;
+    if (mins < 3) return "Bullet";
+    if (mins <= 8) return "Blitz";
+    if (mins <= 25) return "Rapid";
+    return "Classical";
   };
 
   const formatDateTime = (timestamp) => {
-    if (!timestamp) return 'TBD';
+    if (!timestamp) return "TBD";
     const date = new Date(timestamp);
     return date.toLocaleString();
   };
 
   const formatDuration = (minutes) => {
-    if (minutes < 60) return `${minutes}m`;
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+    const mins = Number(minutes) || 0;
+    if (mins < 60) return `${mins}m`;
+    const hours = Math.floor(mins / 60);
+    const remainingMinutes = mins % 60;
+    return remainingMinutes > 0
+      ? `${hours}h ${remainingMinutes}m`
+      : `${hours}h`;
   };
 
   const getTimeUntilStart = (startsAt) => {
@@ -81,26 +119,26 @@ export default function TournamentsPage() {
     const now = new Date();
     const start = new Date(startsAt);
     const diff = start - now;
-    
-    if (diff <= 0) return 'Started';
-    
+
+    if (diff <= 0) return "Started";
+
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    
+
     if (days > 0) return `Starts in ${days}d ${hours}h`;
     if (hours > 0) return `Starts in ${hours}h ${minutes}m`;
     return `Starts in ${minutes}m`;
   };
 
-  const filteredTournaments = tournaments.filter(tournament => {
-    if (filter === 'all') return true;
-    if (filter === 'starting-soon') {
+  const filteredTournaments = tournaments.filter((tournament) => {
+    if (filter === "all") return true;
+    if (filter === "starting-soon") {
       const timeUntil = getTimeUntilStart(tournament.startsAt);
-      return timeUntil && timeUntil !== 'Started' && timeUntil.includes('m');
+      return timeUntil && timeUntil !== "Started" && timeUntil.includes("m");
     }
-    if (filter === 'live') return tournament.status === 'started';
-    if (filter === 'upcoming') return tournament.status === 'created';
+    if (filter === "live") return tournament.status === "started";
+    if (filter === "upcoming") return tournament.status === "created";
     return true;
   });
 
@@ -120,7 +158,9 @@ export default function TournamentsPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-600 text-6xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Tournaments</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Error Loading Tournaments
+          </h2>
           <p className="text-gray-600">{error}</p>
         </div>
       </div>
@@ -143,21 +183,41 @@ export default function TournamentsPage() {
         <div className="mb-8">
           <div className="flex flex-wrap justify-center gap-2">
             {[
-              { key: 'all', name: 'All Tournaments', count: tournaments.length },
-              { key: 'live', name: 'Live Now', count: tournaments.filter(t => t.status === 'started').length },
-              { key: 'upcoming', name: 'Upcoming', count: tournaments.filter(t => t.status === 'created').length },
-              { key: 'starting-soon', name: 'Starting Soon', count: tournaments.filter(t => {
-                const timeUntil = getTimeUntilStart(t.startsAt);
-                return timeUntil && timeUntil !== 'Started' && timeUntil.includes('m');
-              }).length },
+              {
+                key: "all",
+                name: "All Tournaments",
+                count: tournaments.length,
+              },
+              {
+                key: "live",
+                name: "Live Now",
+                count: tournaments.filter((t) => t.status === "started").length,
+              },
+              {
+                key: "upcoming",
+                name: "Upcoming",
+                count: tournaments.filter((t) => t.status === "created").length,
+              },
+              {
+                key: "starting-soon",
+                name: "Starting Soon",
+                count: tournaments.filter((t) => {
+                  const timeUntil = getTimeUntilStart(t.startsAt);
+                  return (
+                    timeUntil &&
+                    timeUntil !== "Started" &&
+                    timeUntil.includes("m")
+                  );
+                }).length,
+              },
             ].map((filterOption) => (
               <button
                 key={filterOption.key}
                 onClick={() => setFilter(filterOption.key)}
                 className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
                   filter === filterOption.key
-                    ? 'bg-blue-600 text-white shadow-lg'
-                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                    ? "bg-blue-600 text-white shadow-lg"
+                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
                 }`}
               >
                 {filterOption.name} ({filterOption.count})
@@ -170,21 +230,30 @@ export default function TournamentsPage() {
         {filteredTournaments.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTournaments.map((tournament) => {
-              const timeUntilStart = getTimeUntilStart(tournament.startsAt);
-              
+              if (!tournament || typeof tournament !== "object") {
+                return null;
+              }
+
+              const timeUntilStart = getTimeUntilStart(tournament?.startsAt);
+
               return (
                 <div
-                  key={tournament.id}
+                  key={tournament?.id || Math.random()}
                   className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
                 >
                   {/* Header */}
                   <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3">
                     <div className="flex items-center justify-between">
-                      <span className={`px-2 py-1 rounded-full text-xs font-bold border ${getStatusColor(tournament.status)}`}>
-                        {tournament.status === 'created' ? 'Upcoming' :
-                         tournament.status === 'started' ? 'Live' : tournament.status}
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-bold border ${getStatusColor(tournament?.status)}`}
+                      >
+                        {tournament?.status === "created"
+                          ? "Upcoming"
+                          : tournament?.status === "started"
+                            ? "Live"
+                            : tournament?.status || "Unknown"}
                       </span>
-                      {tournament.rated && (
+                      {tournament?.rated && (
                         <span className="bg-yellow-400 text-black px-2 py-1 rounded text-xs font-bold">
                           Rated
                         </span>
@@ -195,17 +264,19 @@ export default function TournamentsPage() {
                   {/* Content */}
                   <div className="p-4">
                     <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">
-                      {tournament.name}
+                      {String(tournament?.name || "Unnamed Tournament")}
                     </h3>
 
                     <div className="space-y-2 text-sm">
                       {/* Variant and Time Control */}
                       <div className="flex items-center justify-between">
-                        <span className={`font-medium ${getVariantColor(tournament.variant)}`}>
-                          {tournament.variant?.name || 'Standard'}
+                        <span
+                          className={`font-medium ${getVariantColor(tournament?.variant)}`}
+                        >
+                          {String(tournament?.variant?.name || "Standard")}
                         </span>
                         <span className="text-gray-600">
-                          {formatTimeControl(tournament.minutes)}
+                          {formatTimeControl(Number(tournament?.minutes) || 0)}
                         </span>
                       </div>
 
@@ -213,7 +284,7 @@ export default function TournamentsPage() {
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Players:</span>
                         <span className="font-medium text-blue-600">
-                          {tournament.nbPlayers?.toLocaleString() || 0}
+                          {Number(tournament?.nbPlayers || 0).toLocaleString()}
                         </span>
                       </div>
 
@@ -221,16 +292,19 @@ export default function TournamentsPage() {
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Duration:</span>
                         <span className="font-medium">
-                          {formatDuration(tournament.minutes)}
+                          {formatDuration(Number(tournament?.minutes) || 0)}
                         </span>
                       </div>
 
                       {/* Rating Restrictions */}
-                      {(tournament.minRating || tournament.maxRating) && (
+                      {(tournament?.minRating || tournament?.maxRating) && (
                         <div className="flex items-center justify-between">
                           <span className="text-gray-600">Rating:</span>
                           <span className="font-medium">
-                            {tournament.minRating || 0} - {tournament.maxRating || '∞'}
+                            {Number(tournament?.minRating) || 0} -{" "}
+                            {tournament?.maxRating
+                              ? Number(tournament.maxRating)
+                              : "∞"}
                           </span>
                         </div>
                       )}
@@ -238,14 +312,17 @@ export default function TournamentsPage() {
                       {/* Start Time */}
                       <div className="pt-2 border-t border-gray-200">
                         <div className="text-xs text-gray-500 mb-1">
-                          {tournament.status === 'started' ? 'Started' : 'Starts'}:
+                          {tournament?.status === "started"
+                            ? "Started"
+                            : "Starts"}
+                          :
                         </div>
                         <div className="font-medium">
-                          {formatDateTime(tournament.startsAt)}
+                          {formatDateTime(tournament?.startsAt)}
                         </div>
-                        {timeUntilStart && timeUntilStart !== 'Started' && (
+                        {timeUntilStart && timeUntilStart !== "Started" && (
                           <div className="text-xs text-blue-600 font-medium mt-1">
-                            {timeUntilStart}
+                            {String(timeUntilStart)}
                           </div>
                         )}
                       </div>
@@ -254,16 +331,18 @@ export default function TournamentsPage() {
                     {/* Action Button */}
                     <div className="mt-4">
                       <a
-                        href={`https://lichess.org/tournament/${tournament.id}`}
+                        href={`https://lichess.org/tournament/${tournament?.id || ""}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className={`w-full inline-flex items-center justify-center px-4 py-2 rounded-lg font-semibold transition-colors ${
-                          tournament.status === 'started'
-                            ? 'bg-green-600 hover:bg-green-700 text-white'
-                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                          tournament?.status === "started"
+                            ? "bg-green-600 hover:bg-green-700 text-white"
+                            : "bg-blue-600 hover:bg-blue-700 text-white"
                         }`}
                       >
-                        {tournament.status === 'started' ? 'Join Live' : 'View Details'}
+                        {tournament?.status === "started"
+                          ? "Join Live"
+                          : "View Details"}
                         <span className="ml-2">→</span>
                       </a>
                     </div>
@@ -279,8 +358,8 @@ export default function TournamentsPage() {
               No Tournaments Found
             </h3>
             <p className="text-gray-600">
-              {filter === 'all' 
-                ? 'No tournaments are currently available.'
+              {filter === "all"
+                ? "No tournaments are currently available."
                 : `No tournaments match the "${filter}" filter.`}
             </p>
           </div>
@@ -288,7 +367,10 @@ export default function TournamentsPage() {
 
         {/* Footer Note */}
         <div className="mt-8 text-center text-sm text-gray-500">
-          <p>Data provided by Lichess.org API • Click on tournaments to join on Lichess</p>
+          <p>
+            Data provided by Lichess.org API • Click on tournaments to join on
+            Lichess
+          </p>
         </div>
       </div>
     </div>

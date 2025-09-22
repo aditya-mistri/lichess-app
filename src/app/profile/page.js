@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { getUserStats, formatRatings } from '@/services/lichessApi';
+import { useState } from "react";
+import { getUserStats, formatRatings } from "@/services/lichessApi";
 
 export default function ProfilePage() {
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState("");
   const [userdata, setUserdata] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -12,7 +12,7 @@ export default function ProfilePage() {
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!username.trim()) {
-      setError('Please enter a username');
+      setError("Please enter a username");
       return;
     }
 
@@ -21,33 +21,33 @@ export default function ProfilePage() {
     setUserdata(null);
 
     const result = await getUserStats(username.trim());
-    
+
     if (result.error) {
       setError(result.error);
     } else {
       setUserdata(result.data);
     }
-    
+
     setLoading(false);
   };
 
   const formatGameCount = (count) => {
-    if (!count) return '0';
+    if (!count) return "0";
     return count.toLocaleString();
   };
 
   const formatDate = (timestamp) => {
-    if (!timestamp) return 'Unknown';
+    if (!timestamp) return "Unknown";
     return new Date(timestamp).toLocaleDateString();
   };
 
   const getRatingColor = (rating) => {
-    if (rating >= 2400) return 'text-purple-600 font-bold';
-    if (rating >= 2200) return 'text-red-600 font-semibold';
-    if (rating >= 2000) return 'text-orange-600 font-semibold';
-    if (rating >= 1800) return 'text-yellow-600 font-medium';
-    if (rating >= 1600) return 'text-green-600 font-medium';
-    return 'text-blue-600';
+    if (rating >= 2400) return "text-purple-600 font-bold";
+    if (rating >= 2200) return "text-red-600 font-semibold";
+    if (rating >= 2000) return "text-orange-600 font-semibold";
+    if (rating >= 1800) return "text-yellow-600 font-medium";
+    if (rating >= 1600) return "text-green-600 font-medium";
+    return "text-blue-600";
   };
 
   return (
@@ -77,7 +77,7 @@ export default function ProfilePage() {
               disabled={loading || !username.trim()}
               className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? 'Searching...' : 'Search'}
+              {loading ? "Searching..." : "Search"}
             </button>
           </div>
         </form>
@@ -109,9 +109,13 @@ export default function ProfilePage() {
                     )}
                   </h2>
                   <div className="flex flex-col sm:flex-row gap-4 mt-2 text-blue-100">
-                    <span className={`inline-flex items-center gap-1 ${userdata.online ? 'text-green-300' : 'text-gray-300'}`}>
-                      <div className={`w-2 h-2 rounded-full ${userdata.online ? 'bg-green-300' : 'bg-gray-300'}`}></div>
-                      {userdata.online ? 'Online' : 'Offline'}
+                    <span
+                      className={`inline-flex items-center gap-1 ${userdata.online ? "text-green-300" : "text-gray-300"}`}
+                    >
+                      <div
+                        className={`w-2 h-2 rounded-full ${userdata.online ? "bg-green-300" : "bg-gray-300"}`}
+                      ></div>
+                      {userdata.online ? "Online" : "Offline"}
                     </span>
                     {userdata.playing && (
                       <span className="text-yellow-300">Currently Playing</span>
@@ -125,7 +129,9 @@ export default function ProfilePage() {
               {/* Profile Information */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">Profile Information</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                    Profile Information
+                  </h3>
                   <div className="space-y-3">
                     {userdata.profile?.bio && (
                       <div>
@@ -135,32 +141,47 @@ export default function ProfilePage() {
                     )}
                     {userdata.profile?.firstName && (
                       <div>
-                        <p className="text-sm font-medium text-gray-500">Name</p>
+                        <p className="text-sm font-medium text-gray-500">
+                          Name
+                        </p>
                         <p className="text-gray-900">
-                          {userdata.profile.firstName} {userdata.profile.lastName || ''}
+                          {userdata.profile.firstName}{" "}
+                          {userdata.profile.lastName || ""}
                         </p>
                       </div>
                     )}
                     {userdata.profile?.country && (
                       <div>
-                        <p className="text-sm font-medium text-gray-500">Country</p>
-                        <p className="text-gray-900">{userdata.profile.country}</p>
+                        <p className="text-sm font-medium text-gray-500">
+                          Country
+                        </p>
+                        <p className="text-gray-900">
+                          {userdata.profile.country}
+                        </p>
                       </div>
                     )}
                     {userdata.profile?.location && (
                       <div>
-                        <p className="text-sm font-medium text-gray-500">Location</p>
-                        <p className="text-gray-900">{userdata.profile.location}</p>
+                        <p className="text-sm font-medium text-gray-500">
+                          Location
+                        </p>
+                        <p className="text-gray-900">
+                          {userdata.profile.location}
+                        </p>
                       </div>
                     )}
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">Account Stats</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                    Account Stats
+                  </h3>
                   <div className="space-y-3">
                     <div>
-                      <p className="text-sm font-medium text-gray-500">Total Games</p>
+                      <p className="text-sm font-medium text-gray-500">
+                        Total Games
+                      </p>
                       <p className="text-2xl font-bold text-gray-900">
                         {formatGameCount(userdata.count?.all)}
                       </p>
@@ -172,12 +193,20 @@ export default function ProfilePage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-500">Member Since</p>
-                      <p className="text-gray-900">{formatDate(userdata.createdAt)}</p>
+                      <p className="text-sm font-medium text-gray-500">
+                        Member Since
+                      </p>
+                      <p className="text-gray-900">
+                        {formatDate(userdata.createdAt)}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-500">Last Seen</p>
-                      <p className="text-gray-900">{formatDate(userdata.seenAt)}</p>
+                      <p className="text-sm font-medium text-gray-500">
+                        Last Seen
+                      </p>
+                      <p className="text-gray-900">
+                        {formatDate(userdata.seenAt)}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -185,32 +214,53 @@ export default function ProfilePage() {
 
               {/* Ratings Section */}
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Ratings</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {Object.entries(formatRatings(userdata.perfs)).map(([gameType, rating]) => (
-                    <div key={gameType} className="bg-gray-50 rounded-lg p-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="font-semibold text-gray-700 capitalize">
-                          {gameType}
-                        </h4>
-                        <span className="text-sm text-gray-500">
-                          {rating.games} games
-                        </span>
-                      </div>
-                      <div className={`text-2xl font-bold ${getRatingColor(rating.rating)}`}>
-                        {rating.rating}
-                        {rating.prov && (
-                          <span className="text-sm text-gray-500 ml-1">?</span>
-                        )}
-                      </div>
-                      {rating.prog !== undefined && rating.prog !== 0 && (
-                        <div className={`text-sm ${rating.prog > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {rating.prog > 0 ? '+' : ''}{rating.prog}
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  Ratings
+                </h3>
+                {userdata.perfs && Object.keys(userdata.perfs).length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {Object.entries(formatRatings(userdata.perfs || {})).map(
+                      ([gameType, ratingData]) => (
+                        <div
+                          key={gameType}
+                          className="bg-gray-50 rounded-lg p-4"
+                        >
+                          <div className="flex justify-between items-center mb-2">
+                            <h4 className="font-semibold text-gray-700 capitalize">
+                              {gameType}
+                            </h4>
+                            <span className="text-sm text-gray-500">
+                              {ratingData.games || 0} games
+                            </span>
+                          </div>
+                          <div
+                            className={`text-2xl font-bold ${getRatingColor(ratingData.rating || 0)}`}
+                          >
+                            {ratingData.rating || 0}
+                            {ratingData.prov && (
+                              <span className="text-sm text-gray-500 ml-1">
+                                ?
+                              </span>
+                            )}
+                          </div>
+                          {ratingData.prog !== undefined &&
+                            ratingData.prog !== 0 && (
+                              <div
+                                className={`text-sm ${ratingData.prog > 0 ? "text-green-600" : "text-red-600"}`}
+                              >
+                                {ratingData.prog > 0 ? "+" : ""}
+                                {ratingData.prog}
+                              </div>
+                            )}
                         </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                      )
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>No rating data available</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
