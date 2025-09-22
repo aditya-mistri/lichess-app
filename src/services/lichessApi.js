@@ -218,15 +218,23 @@ export function formatTournament(tournament) {
     position: tournament.position,
     hasMaxRating: Boolean(tournament.hasMaxRating),
     // Handle the nested rating object structure
-    maxRating: tournament.maxRating?.rating ? Number(tournament.maxRating.rating) : null,
-    minRating: tournament.minRating?.rating ? Number(tournament.minRating.rating) : null,
+    maxRating: tournament.maxRating?.rating
+      ? Number(tournament.maxRating.rating)
+      : null,
+    minRating: tournament.minRating?.rating
+      ? Number(tournament.minRating.rating)
+      : null,
     // Handle the nested minRatedGames object structure
-    minRatedGames: tournament.minRatedGames?.nb ? Number(tournament.minRatedGames.nb) : null,
+    minRatedGames: tournament.minRatedGames?.nb
+      ? Number(tournament.minRatedGames.nb)
+      : null,
     minutes: Number(tournament.minutes) || 0,
     // Add clock information for better time control calculation
-    clock: tournament.clock ? {
-      limit: Number(tournament.clock.limit) || 0,
-      increment: Number(tournament.clock.increment) || 0,
-    } : null,
+    clock: tournament.clock
+      ? {
+          limit: Number(tournament.clock.limit) || 0,
+          increment: Number(tournament.clock.increment) || 0,
+        }
+      : null,
   };
 }

@@ -98,7 +98,7 @@ export default function TournamentsPage() {
   const formatTimeControl = (tournament) => {
     // Use clock.limit (in seconds) if available, otherwise fall back to minutes calculation
     let timeInMinutes;
-    
+
     if (tournament?.clock?.limit) {
       // Convert seconds to minutes
       timeInMinutes = tournament.clock.limit / 60;
@@ -319,7 +319,8 @@ export default function TournamentsPage() {
                         <div className="flex items-center justify-between">
                           <span className="text-gray-600">Time Control:</span>
                           <span className="font-medium">
-                            {Math.floor(tournament.clock.limit / 60)}+{tournament.clock.increment}
+                            {Math.floor(tournament.clock.limit / 60)}+
+                            {tournament.clock.increment}
                           </span>
                         </div>
                       )}
