@@ -180,10 +180,24 @@ export function formatTournament(tournament) {
     return null;
   }
 
+  // Map numeric status codes to string status
+  const getStatusString = (statusCode) => {
+    switch (statusCode) {
+      case 10:
+        return "created";
+      case 20:
+        return "started";
+      case 30:
+        return "finished";
+      default:
+        return "unknown";
+    }
+  };
+
   return {
     id: String(tournament.id || ""),
     name: String(tournament.fullName || tournament.name || ""),
-    status: String(tournament.status || ""),
+    status: getStatusString(tournament.status),
     nbPlayers: Number(tournament.nbPlayers) || 0,
     startsAt: tournament.startsAt,
     finishesAt: tournament.finishesAt,
@@ -203,9 +217,16 @@ export function formatTournament(tournament) {
       : null,
     position: tournament.position,
     hasMaxRating: Boolean(tournament.hasMaxRating),
-    maxRating: Number(tournament.maxRating) || null,
-    minRating: Number(tournament.minRating) || null,
-    minRatedGames: Number(tournament.minRatedGames) || null,
+    // Handle the nested rating object structure
+    maxRating: tournament.maxRating?.rating ? Number(tournament.maxRating.rating) : null,
+    minRating: tournament.minRating?.rating ? Number(tournament.minRating.rating) : null,
+    // Handle the nested minRatedGames object structure
+    minRatedGames: tournament.minRatedGames?.nb ? Number(tournament.minRatedGames.nb) : null,
     minutes: Number(tournament.minutes) || 0,
+    // Add clock information for better time control calculation
+    clock: tournament.clock ? {
+      limit: Number(tournament.clock.limit) || 0,
+      increment: Number(tournament.clock.increment) || 0,
+    } : null,
   };
 }

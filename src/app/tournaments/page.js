@@ -21,24 +21,29 @@ export default function TournamentsPage() {
       } else {
         try {
           // Format and filter tournaments with error handling
-          const formattedTournaments =
-            result.data.created
-              ?.map((tournament) => {
-                try {
-                  return formatTournament(tournament);
-                } catch (err) {
-                  console.error(
-                    "Error formatting tournament:",
-                    err.message,
-                    "Tournament ID:",
-                    tournament?.id
-                  );
-                  return null;
-                }
-              })
-              .filter(
-                (tournament) => tournament && tournament.status !== "finished"
-              ) || [];
+          // Combine tournaments from all categories (created, started, finished)
+          const allTournaments = [
+            ...(result.data.created || []),
+            ...(result.data.started || []),
+            ...(result.data.finished || []),
+          ];
+
+          const formattedTournaments = allTournaments
+            .map((tournament) => {
+              try {
+                return formatTournament(tournament);
+              } catch (err) {
+                console.error(
+                  "Error formatting tournament:",
+                  err.message,
+                  "Tournament ID:",
+                  tournament?.id
+                );
+                return null;
+              }
+            })
+            .filter((tournament) => tournament !== null);
+
           setTournaments(formattedTournaments);
         } catch (err) {
           console.error("Error processing tournaments:", err);
@@ -90,11 +95,24 @@ export default function TournamentsPage() {
     }
   };
 
-  const formatTimeControl = (minutes) => {
-    const mins = Number(minutes) || 0;
-    if (mins < 3) return "Bullet";
-    if (mins <= 8) return "Blitz";
-    if (mins <= 25) return "Rapid";
+  const formatTimeControl = (tournament) => {
+    // Use clock.limit (in seconds) if available, otherwise fall back to minutes calculation
+    let timeInMinutes;
+    
+    if (tournament?.clock?.limit) {
+      // Convert seconds to minutes
+      timeInMinutes = tournament.clock.limit / 60;
+    } else if (tournament?.minutes) {
+      // Fallback to using tournament duration (less accurate for time control classification)
+      timeInMinutes = tournament.minutes;
+    } else {
+      return "Unknown";
+    }
+
+    if (timeInMinutes < 1) return "UltraBullet";
+    if (timeInMinutes < 3) return "Bullet";
+    if (timeInMinutes <= 8) return "Blitz";
+    if (timeInMinutes <= 25) return "Rapid";
     return "Classical";
   };
 
@@ -276,7 +294,7 @@ export default function TournamentsPage() {
                           {String(tournament?.variant?.name || "Standard")}
                         </span>
                         <span className="text-gray-600">
-                          {formatTimeControl(Number(tournament?.minutes) || 0)}
+                          {formatTimeControl(tournament)}
                         </span>
                       </div>
 
@@ -296,15 +314,33 @@ export default function TournamentsPage() {
                         </span>
                       </div>
 
+                      {/* Clock Settings */}
+                      {tournament?.clock && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600">Time Control:</span>
+                          <span className="font-medium">
+                            {Math.floor(tournament.clock.limit / 60)}+{tournament.clock.increment}
+                          </span>
+                        </div>
+                      )}
+
                       {/* Rating Restrictions */}
                       {(tournament?.minRating || tournament?.maxRating) && (
                         <div className="flex items-center justify-between">
                           <span className="text-gray-600">Rating:</span>
                           <span className="font-medium">
-                            {Number(tournament?.minRating) || 0} -{" "}
-                            {tournament?.maxRating
-                              ? Number(tournament.maxRating)
-                              : "∞"}
+                            {tournament?.minRating || 0} -{" "}
+                            {tournament?.maxRating || "∞"}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Minimum Rated Games */}
+                      {tournament?.minRatedGames && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600">Min Games:</span>
+                          <span className="font-medium">
+                            {tournament.minRatedGames}
                           </span>
                         </div>
                       )}
