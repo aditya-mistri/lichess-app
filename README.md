@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Lichess Explorer
+
+A modern web application built with Next.js, React, and Tailwind CSS that interacts with the Lichess.org API to display user profiles, leaderboards, and tournaments.
+
+## Features
+
+###  Home Page
+- Clean, responsive landing page with feature overview
+- Quick navigation to all sections
+- Chess-themed design with beautiful gradients
+
+###  Profile Lookup (`/profile`)
+- Search for any Lichess player by username
+- Display comprehensive profile information:
+  - Username, title, online status
+  - Bio, location, country information
+  - Total games played, wins, member since date
+  - Detailed ratings across all game types (Bullet, Blitz, Rapid, Classical, Correspondence)
+  - Rating progression indicators
+  - Color-coded ratings based on skill level
+
+###  Leaderboards (`/leaderboards`)
+- View top players across different time controls
+- Interactive filters for Bullet, Blitz, Rapid, and Classical
+- Player information includes:
+  - Username and official titles (GM, IM, FM, etc.)
+  - Current ratings and game counts
+  - Country information
+  - Online status indicators
+  - Rating progression
+  - FIDE ratings (when available)
+
+###  Tournaments (`/tournaments`)
+- Display currently ongoing and upcoming tournaments
+- Advanced filtering options:
+  - All tournaments
+  - Live tournaments
+  - Upcoming tournaments
+  - Starting soon
+- Tournament details include:
+  - Tournament name and status
+  - Variant type (Standard, Chess960, King of the Hill, etc.)
+  - Time control classification
+  - Number of participants
+  - Duration and start times
+  - Rating restrictions
+  - Direct links to join tournaments
+
+## Technology Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Language**: JavaScript (ES6+)
+- **Styling**: Tailwind CSS
+- **API**: Lichess.org REST API
+- **Icons**: Unicode chess symbols and emojis
+- **Fonts**: Inter font family
 
 ## Getting Started
 
-First, run the development server:
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+2. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+3. **Open your browser**
+   Navigate to `http://localhost:3000` (or the port shown in terminal)
+
+## Project Structure
+
+```
+lichess-app/
+├── src/
+│   ├── app/
+│   │   ├── profile/page.js      # Profile lookup page
+│   │   ├── leaderboards/page.js # Leaderboards page
+│   │   ├── tournaments/page.js  # Tournaments page
+│   │   ├── layout.js            # Root layout with navigation
+│   │   ├── page.js              # Home page
+│   │   └── globals.css          # Global styles
+│   ├── components/
+│   │   ├── Navigation.js        # Main navigation component
+│   │   └── ErrorBoundary.js     # Error handling components
+│   └── services/
+│       └── lichessApi.js        # Lichess API service layer
+└── tailwind.config.js          # Tailwind configuration
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Available Scripts
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Features
 
-## Learn More
+### Responsive Design
+- Mobile-first approach with breakpoints for all devices
+- Touch-friendly interface
+- Optimized layouts for all screen sizes
 
-To learn more about Next.js, take a look at the following resources:
+### Error Handling
+- Comprehensive error handling throughout the application
+- User-friendly error messages
+- Graceful fallbacks for API failures
+- Loading states and retry mechanisms
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Performance
+- Next.js App Router for optimal performance
+- Client-side rendering for interactive components
+- Efficient API request handling
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
