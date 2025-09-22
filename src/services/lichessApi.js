@@ -41,8 +41,9 @@ export async function getUserProfile(username) {
 /**
  * Get leaderboard data for different game types
  * @param {number} nb - Number of players to fetch (default: 20, max: 200)
+ * @param {boolean} includeGameCounts - Whether to fetch detailed user data for game counts (default: true)
  */
-export async function getLeaderboards(nb = 20) {
+export async function getLeaderboards(nb = 20, includeGameCounts = true) {
   const gameTypes = ["bullet", "blitz", "rapid", "classical"];
   const leaderboards = {};
 
@@ -52,6 +53,47 @@ export async function getLeaderboards(nb = 20) {
 
     if (result.error) {
       leaderboards[gameType] = { users: [], error: result.error };
+      continue;
+    }
+
+    // If we want to include game counts, fetch detailed user data
+    if (includeGameCounts && result.data.users) {
+      const enhancedUsers = [];
+      
+      // Fetch detailed data for each user (limited to avoid too many requests)
+      for (const user of result.data.users.slice(0, Math.min(nb, 50))) {
+        try {
+          const userResult = await getUserProfile(user.username);
+          if (userResult.data) {
+            // Merge the leaderboard data with the detailed user data
+            enhancedUsers.push({
+              ...user,
+              ...userResult.data,
+              // Keep the leaderboard-specific performance data (it might be more up-to-date)
+              perfs: {
+                ...userResult.data.perfs,
+                [gameType]: {
+                  ...userResult.data.perfs?.[gameType],
+                  // Preserve leaderboard rating and progress if available
+                  ...(user.perfs?.[gameType] || {})
+                }
+              }
+            });
+          } else {
+            // If user profile fetch fails, keep the original leaderboard data
+            enhancedUsers.push(user);
+          }
+        } catch (error) {
+          console.warn(`Failed to fetch profile for ${user.username}:`, error);
+          // If user profile fetch fails, keep the original leaderboard data
+          enhancedUsers.push(user);
+        }
+      }
+      
+      leaderboards[gameType] = {
+        ...result.data,
+        users: enhancedUsers
+      };
     } else {
       leaderboards[gameType] = result.data;
     }

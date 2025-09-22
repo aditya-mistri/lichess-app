@@ -201,15 +201,18 @@ export default function LeaderboardsPage() {
                           {player.perfs?.[selectedGameType]?.rating || 'N/A'}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {player.perfs?.[selectedGameType]?.games || 0} games
+                          {player.perfs?.[selectedGameType]?.games || player.count?.rated || 0} games
                         </div>
-                        {player.perfs?.[selectedGameType]?.prog !== undefined && 
-                         player.perfs[selectedGameType].prog !== 0 && (
+                        {((player.perfs?.[selectedGameType]?.prog !== undefined && 
+                          player.perfs[selectedGameType].prog !== 0) ||
+                         (player.perfs?.[selectedGameType]?.progress !== undefined && 
+                          player.perfs[selectedGameType].progress !== 0)) && (
                           <div className={`text-sm font-medium ${
-                            player.perfs[selectedGameType].prog > 0 ? 'text-green-600' : 'text-red-600'
+                            (player.perfs[selectedGameType].prog || player.perfs[selectedGameType].progress || 0) > 0 
+                              ? 'text-green-600' : 'text-red-600'
                           }`}>
-                            {player.perfs[selectedGameType].prog > 0 ? '+' : ''}
-                            {player.perfs[selectedGameType].prog}
+                            {(player.perfs[selectedGameType].prog || player.perfs[selectedGameType].progress || 0) > 0 ? '+' : ''}
+                            {player.perfs[selectedGameType].prog || player.perfs[selectedGameType].progress || 0}
                           </div>
                         )}
                       </div>
