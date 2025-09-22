@@ -59,7 +59,7 @@ export async function getLeaderboards(nb = 20, includeGameCounts = true) {
     // If we want to include game counts, fetch detailed user data
     if (includeGameCounts && result.data.users) {
       const enhancedUsers = [];
-      
+
       // Fetch detailed data for each user (limited to avoid too many requests)
       for (const user of result.data.users.slice(0, Math.min(nb, 50))) {
         try {
@@ -75,9 +75,9 @@ export async function getLeaderboards(nb = 20, includeGameCounts = true) {
                 [gameType]: {
                   ...userResult.data.perfs?.[gameType],
                   // Preserve leaderboard rating and progress if available
-                  ...(user.perfs?.[gameType] || {})
-                }
-              }
+                  ...(user.perfs?.[gameType] || {}),
+                },
+              },
             });
           } else {
             // If user profile fetch fails, keep the original leaderboard data
@@ -89,10 +89,10 @@ export async function getLeaderboards(nb = 20, includeGameCounts = true) {
           enhancedUsers.push(user);
         }
       }
-      
+
       leaderboards[gameType] = {
         ...result.data,
-        users: enhancedUsers
+        users: enhancedUsers,
       };
     } else {
       leaderboards[gameType] = result.data;
